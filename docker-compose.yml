@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: agriculture_api
+    command: uv run dev  # usa tu script definido en pyproject
+    volumes:
+      - .:/app  # en desarrollo, quitar en producción
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=mysql+aiomysql://user:password@db:3306/agriculture_db
+
+  db:
+    image: mysql:8.0
+    container_name: agriculture_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: agriculture_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+
+volumes:
+  mysqldata:
