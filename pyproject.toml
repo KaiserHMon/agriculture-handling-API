@@ -41,8 +41,8 @@ dev = [
 line-length = 100
 target-version = "py311"
 fix = true
-select = ["E", "F", "W", "I", "B", "C", "N", "UP", "YTT"]
-ignore = ["E501"]
+lint.select = ["E", "F", "W", "I", "B", "C", "N", "UP", "YTT"]
+lint.ignore = ["E501"]
 
 [tool.black]
 line-length = 100

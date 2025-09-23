@@ -48,11 +48,12 @@ uv run dev
 ## Project Structure
 
 - `src/` Main source code
-  - `api/` Endpoints and routes
+  - `routers/` Endpoints and routes
   - `core/` Configuration and utilities
   - `db/` DB connection
   - `models/`, DB tables definitions
-  - `schema/` Data definitions
+  - `schemas/` I/O data definitions
+  - `repositories/` Data logic
   - `services/`, `tasks/`, `utils/` Business logic and utilities
   - `exceptions/` Custom exceptions
   - `alembic/` DB migrations
@@ -78,11 +79,7 @@ uv run dev
 
 ## Contact & Credits
 
-Developed by the Agriculture Handling team. For questions, suggestions, or collaboration, contact [your-email@domain.com].
+Developed by Juan Segundo Hardoy. For questions, suggestions, or collaboration, contact [secondhardoy@gmail.com].
 
 ---
-This project is open source and under active development. Contributions are welcome!
-
-Github Actions for CI/CD (even if only for test + lint).
-
-Optional: ELK/Grafana for observability practice.
+This project is open source and under active development.Contributions and suggestions are welcome!
