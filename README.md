@@ -6,7 +6,7 @@ Comprehensive API for agricultural campaign management, plots, events, and techn
 ## Main Features
 
 - Producers can register campaigns and plots.
-- Create events (e.g., fertilization, sowing) and trigger webhooks (Google Calendar, Mock API).
+- Create events (e.g., fertilization, sowing) and trigger webhooks (Google Calendar).
 - Automatic notifications via WebSocket and database.
 - Advisors can leave recommendations on plots and campaigns.
 - Admin dashboard for costs and yields.
@@ -82,4 +82,3 @@ uv run dev
 Developed by Juan Segundo Hardoy. For questions, suggestions, or collaboration, contact [secondhardoy@gmail.com].
 
 ---
-This project is open source and under active development.Contributions and suggestions are welcome!
