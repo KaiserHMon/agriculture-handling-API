@@ -14,9 +14,8 @@ settings = get_settings()
 
 # Default database configuration for development
 def get_database_url() -> str:
-    """Get database URL with fallback to development configuration."""
-    if settings.DATABASE_URL is not None:
-        return settings.DATABASE_URL
+    if settings.database_url is not None:
+        return settings.database_url
 
     try:
         default_config = {
@@ -29,8 +28,7 @@ def get_database_url() -> str:
         return f"mysql+aiomysql://{default_config['DB_USER']}:{default_config['DB_PASSWORD'].get_secret_value()}@{default_config['DB_HOST']}:{default_config['DB_PORT']}/{default_config['DB_NAME']}"
     except Exception as e:
         raise ConnectionError(
-            "Database configuration is missing and couldn't create default development configuration. "
-            "Please check your .env file or provide the required database environment variables."
+            "Database configuration is missing and default configuration failed."
         ) from e
 
 

@@ -1,10 +1,12 @@
 import uvicorn
 from core.config import get_settings
+from core.logging import configure_logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 ## Initialize settings and configure logging
 settings = get_settings()
+configure_logging(settings)
 
 # Create FastAPI app
 app = FastAPI(
@@ -25,7 +27,6 @@ app.add_middleware(
 
 
 def app_entry():
-    """Entry point for the application."""
     uvicorn.run(
         "src.main:app",
         host=settings.HOST,

@@ -87,7 +87,6 @@ class Settings(BaseSettings):
         return f"redis://:{redis_password}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     # External Services
-    GRAIN_PRICES_API_KEY: SecretStr | None = None
     WEATHER_API_KEY: SecretStr | None = None
     GOOGLE_CALENDAR_API_KEY: SecretStr | None = None
 

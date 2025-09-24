@@ -7,6 +7,12 @@ from loguru import logger
 
 
 class InterceptHandler(logging.Handler):
+    """
+    Intercepts logs from standard logging and redirects them to loguru.
+
+    :param:
+        logging: The logging module
+    """
 
     def emit(self, record: logging.LogRecord) -> None:
         """
@@ -36,7 +42,7 @@ def setup_logging(log_level: str = "INFO", json_format: bool = True) -> None:
     """
     Configure logging for the application.
 
-    Args:
+    :param:
         log_level: The minimum log level to capture
         json_format: Whether to output logs in JSON format
     """
@@ -87,7 +93,7 @@ def configure_logging(settings: Any) -> None:
     """
     Configure logging based on application settings.
 
-    Args:
+    params:
         settings: Application settings instance
     """
     setup_logging(log_level=settings.LOG_LEVEL, json_format=settings.LOG_FORMAT == "json")
