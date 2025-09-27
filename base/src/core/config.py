@@ -2,7 +2,6 @@ from functools import lru_cache
 from typing import Literal
 
 from pydantic import (
-    EmailStr,
     SecretStr,
     field_validator,
 )
@@ -61,17 +60,6 @@ class Settings(BaseSettings):
         db_password = self.DB_PASSWORD.get_secret_value() if self.DB_PASSWORD else ""
         return f"mysql+aiomysql://{self.DB_USER}:{db_password}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-    # Email Configuration
-    MAIL_USERNAME: str | None = None
-    MAIL_PASSWORD: SecretStr | None = None
-    MAIL_FROM: EmailStr | None = None
-    MAIL_PORT: int | None = None
-    MAIL_SERVER: str | None = None
-    MAIL_STARTTLS: bool = True
-    MAIL_SSL_TLS: bool = False
-    MAIL_USE_CREDENTIALS: bool = True
-    MAIL_VALIDATE_CERTS: bool = True
-
     # Redis Configuration
     REDIS_HOST: str | None = None
     REDIS_PORT: int | None = None
@@ -102,6 +90,12 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=True
     )
+
+    # Auth0 Configuration
+    AUTH0_DOMAIN: str | None = None
+    AUTH0_CLIENT_ID: int | None = None
+    AUTH0_CLIENT_SECRET: SecretStr | None = None
+    AUTH0_AUDIENCE: str | None = None
 
     @field_validator("SECRET_KEY")
     def validate_secret_key(self, v: str) -> str:
