@@ -1,8 +1,9 @@
 import uvicorn
-from core.config import get_settings
-from core.logging import configure_logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from core.config import get_settings
+from core.logging import configure_logging
 
 ## Initialize settings and configure logging
 settings = get_settings()
