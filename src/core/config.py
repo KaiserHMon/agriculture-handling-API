@@ -21,6 +21,17 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     API_V1_PREFIX: str = "/api/v1"
 
+    # Logging Settings
+    LOG_LEVEL: str = "INFO"
+    LOG_FORMAT: Literal["json", "text"] = "json"
+    LOG_MODULE_LEVELS: dict[str, str] = {
+        "fastapi": "INFO",
+        "uvicorn": "WARNING",
+        "sqlalchemy": "WARNING",
+        "src.api": "DEBUG",
+        "src.api.health": "WARNING",
+    }
+
     # Server Settings
     HOST: str = "0.0.0.0"
     PORT: int = 8000
@@ -77,10 +88,6 @@ class Settings(BaseSettings):
     # External Services
     WEATHER_API_KEY: SecretStr | None = None
     GOOGLE_CALENDAR_API_KEY: SecretStr | None = None
-
-    # Logging
-    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
-    LOG_FORMAT: Literal["json", "console"] = "json"
 
     # Optional Features
     ENABLE_WEBSOCKETS: bool = True
