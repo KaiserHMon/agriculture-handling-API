@@ -1,14 +1,14 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from .base_model import Base
 
 if TYPE_CHECKING:
-    from .campaign import Campaign, Plot
-    from .user import User
+    from .campaign_model import Campaign, Plot
+    from .user_model import User
 
 
 class Event(Base):
@@ -16,7 +16,6 @@ class Event(Base):
 
     __tablename__ = "events"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(255))
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     event_date: Mapped[datetime] = mapped_column(DateTime)

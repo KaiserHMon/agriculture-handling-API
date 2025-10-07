@@ -8,8 +8,8 @@ from ...core.auth import (
     get_current_active_user,
 )
 from ...core.config import get_settings
-from ...models.user import User
-from ...schemas.auth import TokenResponse, UserProfile
+from ...models.user_model import User
+from ...schemas.auth_schema import TokenResponse, UserProfile
 
 settings = get_settings()
 

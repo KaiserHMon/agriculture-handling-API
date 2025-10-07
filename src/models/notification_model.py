@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from .base_model import Base
 
 if TYPE_CHECKING:
-    from .user import User
+    from .user_model import User
 
 
 class Notification(Base):
@@ -14,7 +14,6 @@ class Notification(Base):
 
     __tablename__ = "notifications"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(255))
     content: Mapped[str] = mapped_column(Text)
     is_read: Mapped[bool] = mapped_column(Boolean, default=False)

@@ -6,7 +6,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr
 
-from ..models.user import UserRole
+from ..models.user_model import UserRole
 
 
 class TokenResponse(BaseModel):

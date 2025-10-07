@@ -1,15 +1,15 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, Float, ForeignKey, Integer, String
+from sqlalchemy import CheckConstraint, Float, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from .base_model import Base
 
 if TYPE_CHECKING:
-    from .campaign import Campaign
-    from .event import Event
-    from .recommendation import Recommendation
-    from .user import User
+    from .campaign_model import Campaign
+    from .event_model import Event
+    from .recommendation_model import Recommendation
+    from .user_model import User
 
 
 class Plot(Base):
@@ -17,7 +17,6 @@ class Plot(Base):
 
     __tablename__ = "plots"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255))
     area: Mapped[float] = mapped_column(Float)  # hectares
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)

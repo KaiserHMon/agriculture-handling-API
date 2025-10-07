@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from .base_model import Base
 
 if TYPE_CHECKING:
-    from .event import Event
-    from .plot import Plot
-    from .user import User
+    from .event_model import Event
+    from .plot_model import Plot
+    from .user_model import User
 
 
 class Campaign(Base):

@@ -2,18 +2,18 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import JSON, Boolean, DateTime, Integer, String
+from sqlalchemy import JSON, Boolean, DateTime, String
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from .base_model import Base
 
 if TYPE_CHECKING:
-    from .campaign import Campaign
-    from .event import Event
-    from .notification import Notification
-    from .plot import Plot
-    from .recommendation import Recommendation
+    from .campaign_model import Campaign
+    from .event_model import Event
+    from .notification_model import Notification
+    from .plot_model import Plot
+    from .recommendation_model import Recommendation
 
 
 class UserRole(str, Enum):
@@ -26,8 +26,6 @@ class User(Base):
     """User model."""
 
     __tablename__ = "users"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     # Auth0 fields
     auth0_id: Mapped[str] = mapped_column(String(255), unique=True, index=True)

@@ -33,7 +33,6 @@ def get_database_url() -> str:
         ) from e
 
 
-# Get database URL
 database_url = get_database_url()
 
 # Create async engine based on settings
