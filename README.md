@@ -1,36 +1,37 @@
 # Agriculture Handling API
 
-Comprehensive API for agricultural campaign management, plots, events, and technical advisories. Automates processes, integrates notifications, and visualizes key metrics for producers, advisors, and administrators.
-
+> Comprehensive API for agricultural campaign management, plots, events, and technical advisories.
+> Automates processes, integrates notifications, and visualizes key metrics for producers, advisors, and administrators.
 
 ## Main Features
 
-- Producers can register campaigns and plots.
-- Create events (e.g., fertilization, sowing) and trigger webhooks (Google Calendar).
-- Automatic notifications via WebSocket and database.
-- Advisors can leave recommendations on plots and campaigns.
-- Admin dashboard for costs and yields.
+* Producers can register campaigns and plots.
+* Create events (e.g., fertilization, sowing) and trigger webhooks (Google Calendar).
+* Automatic notifications via WebSocket and database.
+* Advisors can leave recommendations on plots and campaigns.
+* Admin dashboard for costs and yields.
 
 
-## Architecture & Tech Stack
+| Layer                | Technology                              |
+| -------------------- | --------------------------------------- |
+| **Backend**          | FastAPI                                 |
+| **ORM**              | SQLAlchemy + Alembic                    |
+| **Database**         | MySQL                                   |
+| **Containerization** | Docker & Docker Compose                 |
+| **Authentication**   | Auth0 + JWT (refresh token rotation)    |
+| **Notifications**    | WebSockets                              |
+| **Async Processing** | Celery + Redis                          |
+| **Observability**    | Loguru                                  |
+| **Testing**          | Pytest                                  |
+| **DevOps**           | Pre-commit hooks (Ruff, Pyright, Black) |
 
-- **Backend:** FastAPI
-- **ORM:** SQLAlchemy + Alembic
-- **Database:** MySQL
-- **Containerization:** Docker & Docker Compose
-- **Authentication:** Auth0 + JWT (refresh token rotation)
-- **Notifications:** WebSockets
-- **Async Processing:** Celery + Redis
-- **Observability:** Loguru
-- **Testing:** Pytest
-- **DevOps:** Pre-commit hooks (Ruff, Pyright, Black)
 
 
 ## Quick Installation
 
 ### Requirements
-- Docker & Docker Compose
-- Python 3.11+
+* Docker & Docker Compose
+* Python 3.11+
 
 ### Run with Docker
 
@@ -46,7 +47,7 @@ uv run dev
 ```
 
 
-### Project Structure
+## Project Structure
 | Folder                                      | Description                                                            |
 | ------------------------------------------- | ---------------------------------------------------------------------- |
 | **`src/`**                                  | Main source code of the application.                                   |
@@ -65,22 +66,28 @@ uv run dev
 
 ## Testing & Best Practices
 
-- Run tests with:
+### Run tests with:
   ```bash
   pytest
   ```
-- Using pre-commit config to ensure code quality (Ruff, Pyright, Black).
 
+### Code quality is enforced with pre-commit hooks using:
+
+* Ruff – Linting
+
+* Pyright – Type checking
+
+* Black – Code formatting
 
 
 ## Integrations & Extensions
 
-- Webhooks for calendar and external API integration (grain prices).
-- Export reports in Excel/PDF
+* Webhooks for calendar and external API integration (grain prices).
+* Export reports in Excel/PDF
 
 
 ## Contact & Credits
 
-Developed by Juan Segundo Hardoy. For questions, suggestions, or collaboration, contact [secondhardoy@gmail.com].
+*Developed by Juan Segundo Hardoy. For questions, suggestions, or collaboration, contact [secondhardoy@gmail.com].*
 
 ---
