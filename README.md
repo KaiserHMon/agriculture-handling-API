@@ -45,20 +45,22 @@ The API will be available at [http://localhost:8000](http://localhost:8000)
 uv run dev
 ```
 
-## Project Structure
 
-- `src/` Main source code
-  - `routers/` Endpoints and routes
-  - `core/` Configuration and utilities
-  - `db/` DB connection
-  - `models/`, DB tables definitions
-  - `schemas/` I/O data definitions
-  - `repositories/` Data logic
-  - `services/`, `tasks/`, `utils/` Business logic and utilities
-  - `exceptions/` Custom exceptions
-  - `alembic/` DB migrations
-- `tests/` Unit and integration tests
-- `docs/` Technical and architecture documentation
+### Project Structure
+| Folder                                      | Description                                                            |
+| ------------------------------------------- | ---------------------------------------------------------------------- |
+| **`src/`**                                  | Main source code of the application.                                   |
+| **`routers/`**                              | API endpoints and route definitions (FastAPI routers).                 |
+| **`core/`**                                 | Project configuration (settings, security, logging, middleware, etc.). |
+| **`db/`**                                   | Database connection and initialization.                                |
+| **`models/`**                               | ORM model definitions (database tables).                               |
+| **`schemas/`**                              | Pydantic schemas for data validation and serialization (input/output). |
+| **`repositories/`**                         | Data access layer (CRUD operations and persistence logic).             |
+| **`services/`**, **`tasks/`**, **`utils/`** | Business logic, background tasks, and utility functions.               |
+| **`exceptions/`**                           | Custom exception definitions.                                          |
+| **`alembic/`**                              | Database migrations managed by Alembic.                                |
+| **`tests/`**                                | Unit and integration tests.                                            |
+| **`docs/`**                                 | Technical and architecture documentation.                              |
 
 
 ## Testing & Best Practices
