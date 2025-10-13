@@ -5,7 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.user_model import User
+from models.user_model import User, UserRole
 from repositories.base_repository import BaseRepository
 
 
@@ -102,9 +102,9 @@ class UserRepository(BaseRepository[User]):
             logger.error(f"Error verifying email for User with auth0_id {auth0_id}: {str(e)}")
             raise
 
-    async def set_last_login(self, auth0_id: int, last_login: datetime) -> User | None:
+    async def set_last_login(self, auth0_id: str, last_login: datetime) -> User | None:
         try:
-            user = await self.get(auth0_id)
+            user = await self.get_by_auth0_id(auth0_id)
             if not user:
                 return None
 
@@ -115,6 +115,21 @@ class UserRepository(BaseRepository[User]):
         except SQLAlchemyError as e:
             await self.db.rollback()
             logger.error(f"Error setting last_login for User with auth0_id {auth0_id}: {str(e)}")
+            raise
+
+    async def update_role(self, auth0_id: str, new_role: UserRole) -> User | None:
+        try:
+            user = await self.get_by_auth0_id(auth0_id)
+            if not user:
+                return None
+
+            user.role = new_role
+            await self.db.commit()
+            await self.db.refresh(user)
+            return user
+        except SQLAlchemyError as e:
+            await self.db.rollback()
+            logger.error(f"Error updating role for User with auth0_id {auth0_id}: {str(e)}")
             raise
 
     async def count_users_by_role(self) -> dict[str, int]:
@@ -134,7 +149,7 @@ class FarmerRepository(UserRepository):
 
     async def get_farmers(self) -> list[User]:
         try:
-            query = select(self.model).where(self.model.role == "farmer")
+            query = select(self.model).where(self.model.role == UserRole.FARMER)
             result = await self.db.execute(query)
             return list(result.scalars().all())
         except SQLAlchemyError as e:
@@ -148,7 +163,7 @@ class AdvisorRepository(UserRepository):
 
     async def get_advisors(self) -> list[User]:
         try:
-            query = select(self.model).where(self.model.role == "advisor")
+            query = select(self.model).where(self.model.role == UserRole.ADVISOR)
             result = await self.db.execute(query)
             return list(result.scalars().all())
         except SQLAlchemyError as e:
