@@ -6,7 +6,6 @@ from schema.plot_schema import PlotResponse
 
 
 class CampaignBase(BaseModel):
-    """Base schema for Campaign data."""
 
     name: str = Field(..., min_length=1, max_length=255)
     description: str | None = None
@@ -16,13 +15,10 @@ class CampaignBase(BaseModel):
 
 
 class CampaignCreate(CampaignBase):
-    """Schema for creating a new campaign."""
-
     pass
 
 
 class CampaignUpdate(BaseModel):
-    """Schema for updating a campaign."""
 
     name: str | None = Field(None, min_length=1, max_length=255)
     description: str | None = None
@@ -31,20 +27,17 @@ class CampaignUpdate(BaseModel):
 
 
 class CampaignInDB(CampaignBase):
-    """Schema for Campaign as stored in database."""
 
     id: int
     created_at: datetime
     updated_at: datetime
 
     class Config:
-        """Pydantic config."""
 
         from_attributes = True
 
 
 class CampaignResponse(CampaignInDB):
-    """Schema for Campaign response."""
 
     plots: list[PlotResponse] | None = []
 
@@ -57,7 +50,6 @@ class CampaignStats(BaseModel):
 
 
 class CampaignDateUpdate(BaseModel):
-    """Schema for updating campaign dates."""
 
     start_date: datetime | None = None
     end_date: datetime | None = None

@@ -5,6 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from exceptions.api_exceptions import DatabaseError
 from models.base_model import Base
 
 T = TypeVar("T", bound=Base)
@@ -22,7 +23,9 @@ class BaseRepository(Generic[T]):
             return result.scalar_one_or_none()
         except SQLAlchemyError as e:
             logger.error(f"Error getting {self.model.__name__} with id {id}: {str(e)}")
-            raise
+            raise DatabaseError(
+                message=f"Failed to get {self.model.__name__}", details={"id": id, "error": str(e)}
+            ) from e
 
     async def get_all(self) -> list[T]:
         try:
@@ -31,7 +34,9 @@ class BaseRepository(Generic[T]):
             return list(result.scalars().all())
         except SQLAlchemyError as e:
             logger.error(f"Error getting all {self.model.__name__}s: {str(e)}")
-            raise
+            raise DatabaseError(
+                message=f"Failed to get all {self.model.__name__}s", details={"error": str(e)}
+            ) from e
 
     async def get_paginated(self, page: int = 1, page_size: int = 10) -> tuple[list[T], int]:
         """
@@ -72,7 +77,10 @@ class BaseRepository(Generic[T]):
         except SQLAlchemyError as e:
             await self.db.rollback()
             logger.error(f"Error creating {self.model.__name__}: {str(e)}")
-            raise
+            raise DatabaseError(
+                message=f"Failed to create {self.model.__name__}",
+                details={"data": obj_data, "error": str(e)},
+            ) from e
 
     async def update(self, id: int, obj_data: dict) -> T | None:
         try:
@@ -89,7 +97,10 @@ class BaseRepository(Generic[T]):
         except SQLAlchemyError as e:
             await self.db.rollback()
             logger.error(f"Error updating {self.model.__name__} with id {id}: {str(e)}")
-            raise
+            raise DatabaseError(
+                message=f"Failed to update {self.model.__name__}",
+                details={"id": id, "data": obj_data, "error": str(e)},
+            ) from e
 
     async def delete(self, id: int) -> bool:
         try:
@@ -103,4 +114,7 @@ class BaseRepository(Generic[T]):
         except SQLAlchemyError as e:
             await self.db.rollback()
             logger.error(f"Error deleting {self.model.__name__} with id {id}: {str(e)}")
-            raise
+            raise DatabaseError(
+                message=f"Failed to delete {self.model.__name__}",
+                details={"id": id, "error": str(e)},
+            ) from e

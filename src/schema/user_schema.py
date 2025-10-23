@@ -6,7 +6,6 @@ from models.user_model import UserRole
 
 
 class UserBase(BaseModel):
-    """Base schema for User data."""
 
     email: EmailStr
     full_name: str = Field(..., min_length=1, max_length=255)
@@ -16,14 +15,12 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    """Schema for creating a new user."""
 
     auth0_id: str = Field(..., max_length=255)
     auth0_metadata: dict | None = None
 
 
 class UserUpdate(BaseModel):
-    """Schema for updating a user."""
 
     email: EmailStr | None = None
     full_name: str | None = Field(None, min_length=1, max_length=255)
@@ -34,7 +31,6 @@ class UserUpdate(BaseModel):
 
 
 class UserInDB(UserBase):
-    """Schema for User as stored in database."""
 
     id: int
     auth0_id: str
@@ -46,24 +42,20 @@ class UserInDB(UserBase):
     updated_at: datetime
 
     class Config:
-        """Pydantic config."""
 
         from_attributes = True
 
 
 class UserResponse(UserInDB):
-    """Schema for User response."""
-
     pass
 
 
 class UserRoleUpdate(BaseModel):
-    """Schema for updating user role."""
 
     role: UserRole = Field(...)
 
 
-class UserLogin(BaseModel):
+class UserLoginUpdate(BaseModel):
     """Schema for user login update."""
 
     last_login: datetime = Field(...)

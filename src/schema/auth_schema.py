@@ -1,7 +1,3 @@
-"""
-Authentication schemas.
-"""
-
 from datetime import datetime
 
 from pydantic import BaseModel, EmailStr
@@ -32,6 +28,5 @@ class UserProfile(BaseModel):
     last_login: datetime | None = None
 
     class Config:
-        """Pydantic config."""
 
         from_attributes = True

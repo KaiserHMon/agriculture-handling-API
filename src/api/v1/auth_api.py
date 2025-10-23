@@ -9,7 +9,7 @@ from ...core.auth import (
 )
 from ...core.config import get_settings
 from ...models.user_model import User
-from ...schemas.auth_schema import TokenResponse, UserProfile
+from ...schema.auth_schema import TokenResponse, UserProfile
 
 settings = get_settings()
 
