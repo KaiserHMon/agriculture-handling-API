@@ -1,6 +1,6 @@
 # Agriculture Handling API
 
-> Comprehensive API for agricultural campaign management, plots, events, and technical advisories.
+> Comprehensive API for agricultural campaign management, plots, events, and technical recommendations.
 > Automates processes, integrates notifications, and visualizes key metrics for producers, advisors, and administrators.
 
 ## Main Features
