@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 class UserRole(str, Enum):
     FARMER = "farmer"
     ADVISOR = "advisor"
+    ADMIN = "admin"
 
 
 class User(Base):
