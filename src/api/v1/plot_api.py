@@ -82,11 +82,13 @@ async def get_plot(
                 detail="Not enough permissions to access this plot",
             )
         elif current_user.role == UserRole.ADVISOR:
-            # TODO: Check if advisor has made recommendations for this plot
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Advisors can only access plots through recommendations",
-            )
+            # Verificar si el asesor tiene acceso a través de recomendaciones
+            has_access = await service.validate_advisor_plot_access(plot.id, current_user.id)
+            if not has_access:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Advisors can only access plots where they have made recommendations",
+                )
         return PlotResponse.from_orm(plot)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=e.message) from e
@@ -173,11 +175,13 @@ async def get_plot_with_events(
                 detail="Not enough permissions to access this plot",
             )
         elif current_user.role == UserRole.ADVISOR:
-            # TODO: Check if advisor has made recommendations for this plot
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Advisors can only access plots through recommendations",
-            )
+            # Verificar si el asesor tiene acceso a través de recomendaciones
+            has_access = await service.validate_advisor_plot_access(plot.id, current_user.id)
+            if not has_access:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Advisors can only access plots where they have made recommendations",
+                )
         return PlotResponse.from_orm(plot)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=e.message) from e
@@ -201,11 +205,13 @@ async def get_plot_with_recommendations(
                 detail="Not enough permissions to access this plot",
             )
         elif current_user.role == UserRole.ADVISOR:
-            # TODO: Check if advisor has made recommendations for this plot
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Advisors can only access plots through recommendations",
-            )
+            # Verificar si el asesor tiene acceso a través de recomendaciones
+            has_access = await service.validate_advisor_plot_access(plot.id, current_user.id)
+            if not has_access:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Advisors can only access plots where they have made recommendations",
+                )
         return PlotResponse.from_orm(plot)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=e.message) from e
@@ -228,8 +234,12 @@ async def get_campaign_plots(
             # Filter plots for farmer
             filtered_plots = [p for p in plots if p.user_id == current_user.id]
         elif current_user.role == UserRole.ADVISOR:
-            # TODO: Filter plots where advisor has recommendations
-            filtered_plots = []
+            # Filtrar parcelas donde el asesor ha hecho recomendaciones
+            filtered_plots = [
+                p
+                for p in plots
+                if await service.validate_advisor_plot_access(p.id, current_user.id)
+            ]
         else:
             filtered_plots = plots
         return [PlotResponse.from_orm(p) for p in filtered_plots]
@@ -273,8 +283,12 @@ async def get_plots_by_location(
             # Filter plots for farmer
             filtered_plots = [p for p in plots if p.user_id == current_user.id]
         elif current_user.role == UserRole.ADVISOR:
-            # TODO: Filter plots where advisor has recommendations
-            filtered_plots = []
+            # Filtrar parcelas donde el asesor ha hecho recomendaciones
+            filtered_plots = [
+                p
+                for p in plots
+                if await service.validate_advisor_plot_access(p.id, current_user.id)
+            ]
         else:
             filtered_plots = plots
         return [PlotResponse.from_orm(p) for p in filtered_plots]

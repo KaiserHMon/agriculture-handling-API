@@ -10,14 +10,21 @@ if TYPE_CHECKING:
 
 
 class Notification(Base):
-    """Notification model for user alerts."""
+    """Notification model for chat messages between users."""
 
     __tablename__ = "notifications"
 
     title: Mapped[str] = mapped_column(String(255))
     content: Mapped[str] = mapped_column(Text)
     is_read: Mapped[bool] = mapped_column(Boolean, default=False)
+
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
-    # Relationships
-    user: Mapped["User"] = relationship("User", back_populates="notifications")
+    sender_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    sender: Mapped["User"] = relationship(
+        "User", foreign_keys=[sender_id], back_populates="sent_notifications", overlaps="user"
+    )
+
+    user: Mapped["User"] = relationship(
+        "User", foreign_keys=[user_id], back_populates="notifications"
+    )

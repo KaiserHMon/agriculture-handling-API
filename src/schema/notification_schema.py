@@ -7,6 +7,7 @@ class NotificationBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
     content: str = Field(..., min_length=1)
     user_id: int = Field(..., gt=0)
+    sender_id: int = Field(..., gt=0)  # ID del usuario que envía el mensaje
 
 
 class NotificationCreate(NotificationBase):

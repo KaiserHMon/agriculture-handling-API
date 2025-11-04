@@ -5,12 +5,28 @@ from exceptions.api_exceptions import DatabaseError, NotFoundError
 from models.plot_model import Plot
 from repositories.plot_repository import PlotRepository
 from services.base_service import BaseService
+from services.recommendation_service import RecommendationService
 
 
 class PlotService(BaseService[Plot]):
     def __init__(self, db: AsyncSession):
         self.repository = PlotRepository(db)
         super().__init__(self.repository, db)
+
+    async def validate_advisor_plot_access(self, plot_id: int, advisor_id: int) -> bool:
+        """
+        Check if an advisor has access to a plot through their recommendations.
+
+        Args:
+            plot_id: The ID of the plot to check
+            advisor_id: The ID of the advisor
+
+        Returns:
+            bool: True if advisor has access, False otherwise
+        """
+        recommendation_service = RecommendationService(self.db)
+        recommendations = await recommendation_service.get_plot_recommendations(plot_id)
+        return any(r.advisor_id == advisor_id for r in recommendations)
 
     async def get_plot_with_events(self, plot_id: int) -> Plot:
         """

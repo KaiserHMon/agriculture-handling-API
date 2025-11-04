@@ -13,9 +13,13 @@ class NotificationRepository(BaseRepository[Notification]):
         super().__init__(Notification, db)
 
     async def get_user_notifications(self, user_id: int) -> list[Notification]:
-        """Get all notifications for a specific user."""
+        """Get all notifications received by a specific user."""
         try:
-            query = select(self.model).where(self.model.user_id == user_id)
+            query = (
+                select(self.model)
+                .where(self.model.user_id == user_id)
+                .order_by(self.model.created_at.desc())
+            )
             result = await self.db.execute(query)
             return list(result.scalars().all())
         except SQLAlchemyError as e:
@@ -98,5 +102,63 @@ class NotificationRepository(BaseRepository[Notification]):
             logger.error(f"Error deleting read notifications for user {user_id}: {str(e)}")
             raise DatabaseError(
                 message="Failed to delete read notifications",
+                details={"user_id": user_id, "error": str(e)},
+            ) from e
+
+    async def get_conversation(self, user_id: int, other_user_id: int) -> list[Notification]:
+        """Get all messages between two users."""
+        try:
+            query = (
+                select(self.model)
+                .where(
+                    ((self.model.user_id == user_id) & (self.model.sender_id == other_user_id))
+                    | ((self.model.user_id == other_user_id) & (self.model.sender_id == user_id))
+                )
+                .order_by(self.model.created_at)
+            )
+            result = await self.db.execute(query)
+            return list(result.scalars().all())
+        except SQLAlchemyError as e:
+            logger.error(
+                f"Error getting conversation between users {user_id} and {other_user_id}: {str(e)}"
+            )
+            raise DatabaseError(
+                message="Failed to get conversation",
+                details={
+                    "user_id": user_id,
+                    "other_user_id": other_user_id,
+                    "error": str(e),
+                },
+            ) from e
+
+    async def get_conversations_list(self, user_id: int) -> list[dict]:
+        """Get a list of all conversations for a user with their last message."""
+        try:
+            # Subconsulta para obtener el último mensaje de cada conversación
+            latest_messages = (
+                select(
+                    self.model.user_id,
+                    self.model.sender_id,
+                    self.model.created_at.label("last_message_date"),
+                )
+                .where((self.model.user_id == user_id) | (self.model.sender_id == user_id))
+                .distinct()
+                .order_by(self.model.created_at.desc())
+            )
+
+            result = await self.db.execute(latest_messages)
+            conversations = list(result.all())
+
+            return [
+                {
+                    "user_id": conv.user_id if conv.user_id != user_id else conv.sender_id,
+                    "last_message_date": conv.last_message_date,
+                }
+                for conv in conversations
+            ]
+        except SQLAlchemyError as e:
+            logger.error(f"Error getting conversations list for user {user_id}: {str(e)}")
+            raise DatabaseError(
+                message="Failed to get conversations list",
                 details={"user_id": user_id, "error": str(e)},
             ) from e

@@ -48,6 +48,15 @@ class User(Base):
         "Recommendation", back_populates="advisor", foreign_keys="Recommendation.advisor_id"
     )
     notifications: Mapped[list["Notification"]] = relationship(
-        "Notification", back_populates="user"
+        "Notification",
+        back_populates="user",
+        foreign_keys="Notification.user_id",
+        overlaps="sender",
+    )
+    sent_notifications: Mapped[list["Notification"]] = relationship(
+        "Notification",
+        back_populates="sender",
+        foreign_keys="Notification.sender_id",
+        overlaps="user",
     )
     events: Mapped[list["Event"]] = relationship("Event", back_populates="created_by")
