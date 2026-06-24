@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import get_settings
 from core.logging import configure_logging
+from src.api.v1 import v1_router
 
 ## Initialize settings and configure logging
 settings = get_settings()
@@ -25,6 +26,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include API routers
+app.include_router(v1_router, prefix=settings.API_V1_PREFIX)
 
 
 def app_entry():

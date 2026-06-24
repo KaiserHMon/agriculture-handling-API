@@ -1,7 +1,8 @@
+import socket
+import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from pydantic import SecretStr
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -13,24 +14,36 @@ from src.core.config import get_settings
 settings = get_settings()
 
 
-# Default database configuration for development
+# Default database configuration for development with SQLite fallback
 def get_database_url() -> str:
-    if settings.database_url is not None:
+    db_host = settings.DB_HOST
+    db_port = settings.DB_PORT or 3306
+    has_params = all(
+        [
+            settings.DB_USER,
+            settings.DB_PASSWORD,
+            settings.DB_HOST,
+            settings.DB_PORT,
+            settings.DB_NAME,
+        ]
+    )
+
+    mysql_available = False
+    if db_host:
+        try:
+            with socket.create_connection((db_host, db_port), timeout=1.0):
+                mysql_available = True
+        except OSError:
+            pass
+
+    if has_params and mysql_available and settings.database_url is not None:
         return settings.database_url
 
-    try:
-        default_config = {
-            "DB_USER": "root",
-            "DB_PASSWORD": SecretStr(""),  # empty password for development
-            "DB_HOST": "localhost",
-            "DB_PORT": 3306,
-            "DB_NAME": "agriculture_dev",
-        }
-        return f"mysql+aiomysql://{default_config['DB_USER']}:{default_config['DB_PASSWORD'].get_secret_value()}@{default_config['DB_HOST']}:{default_config['DB_PORT']}/{default_config['DB_NAME']}"
-    except Exception as e:
-        raise ConnectionError(
-            "Database configuration is missing and default configuration failed."
-        ) from e
+    print(
+        "WARNING: MySQL database is not running or not configured. Falling back to SQLite local database.",
+        file=sys.stderr,
+    )
+    return "sqlite+aiosqlite:///./agriculture_handling.db"
 
 
 database_url = get_database_url()
@@ -64,7 +77,6 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         try:
             yield session
-            await session.commit()
         except Exception:
             await session.rollback()
             raise
@@ -86,7 +98,6 @@ async def get_db_context() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         try:
             yield session
-            await session.commit()
         except Exception:
             await session.rollback()
             raise

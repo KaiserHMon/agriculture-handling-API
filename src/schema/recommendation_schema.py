@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from .plot_schema import PlotResponse
+
 
 class RecommendationBase(BaseModel):
 
@@ -37,7 +39,5 @@ class RecommendationResponse(RecommendationInDB):
 
 class RecommendationWithPlot(RecommendationResponse):
     """Schema for Recommendation with Plot details."""
-
-    from schema.plot_schema import PlotResponse
 
     plot: PlotResponse

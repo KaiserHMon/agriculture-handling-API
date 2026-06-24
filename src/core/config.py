@@ -46,7 +46,8 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[AnyHttpUrl] = []
 
     @field_validator("CORS_ORIGINS")
-    def validate_cors_origins(self, v: list[str]) -> list[AnyHttpUrl]:
+    @classmethod
+    def validate_cors_origins(cls, v: list[str]) -> list[AnyHttpUrl]:
         """Validate and parse CORS origins."""
         parsed_origins = []
         for origin in v:
@@ -100,13 +101,16 @@ class Settings(BaseSettings):
 
     # Auth0 Configuration
     AUTH0_DOMAIN: str | None = None
-    AUTH0_CLIENT_ID: int | None = None
+    AUTH0_CLIENT_ID: str | None = None
     AUTH0_CLIENT_SECRET: SecretStr | None = None
     AUTH0_AUDIENCE: str | None = None
 
     @field_validator("SECRET_KEY")
-    def validate_secret_key(self, v: str) -> str:
+    @classmethod
+    def validate_secret_key(cls, v: str | None) -> str | None:
         """Validate that the secret key is secure enough."""
+        if v is None:
+            return v
         if len(v) < 32:
             raise ValueError("SECRET_KEY should be at least 32 characters long")
         return v

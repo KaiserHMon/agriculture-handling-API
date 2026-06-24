@@ -1,15 +1,13 @@
-from datetime import datetime
-
 import httpx
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
 from jose.exceptions import JWTError
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db.database import get_db
 from ..models.user_model import User, UserRole
+from ..services.user_service import UserService
 from .config import get_settings
 
 settings = get_settings()
@@ -97,35 +95,15 @@ async def get_current_user(
 ) -> User:
     """Get current authenticated user."""
     payload = await auth0.verify_token(token)
-
-    # Get or create user
     auth0_id = payload["sub"]
-    query = select(User).where(User.auth0_id == auth0_id)
-    result = await session.execute(query)
-    user = result.scalar_one_or_none()
+    roles = payload.get("https://api.agriculture-handling.com/roles", [])
 
-    if not user:
-        # Fetch user profile from Auth0
-        profile = await auth0.get_user_profile(token.credentials)
+    user_service = UserService(session)
 
-        # Create new user
-        user = User(
-            auth0_id=auth0_id,
-            email=profile["email"],
-            email_verified=profile.get("email_verified", False),
-            full_name=profile.get("name", ""),
-            picture=profile.get("picture"),
-            locale=profile.get("locale"),
-            role=UserRole.FARMER,
-            auth0_metadata=profile,
-        )
-        session.add(user)
-        await session.commit()
+    async def load_profile():
+        return await auth0.get_user_profile(token.credentials)
 
-    # Update last login
-    user.last_login = datetime.utcnow()
-    await session.commit()
-
+    user = await user_service.get_or_create_from_auth0(auth0_id, load_profile, roles)
     return user
 
 

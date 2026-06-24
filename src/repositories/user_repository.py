@@ -47,11 +47,9 @@ class UserRepository(BaseRepository[User]):
                 return None
 
             user.is_active = False
-            await self.db.commit()
-            await self.db.refresh(user)
+            await self.db.flush()
             return user
         except SQLAlchemyError as e:
-            await self.db.rollback()
             logger.error(f"Error deactivating User with auth0_id {auth0_id}: {str(e)}")
             raise
 
@@ -62,11 +60,9 @@ class UserRepository(BaseRepository[User]):
                 return None
 
             user.is_active = True
-            await self.db.commit()
-            await self.db.refresh(user)
+            await self.db.flush()
             return user
         except SQLAlchemyError as e:
-            await self.db.rollback()
             logger.error(f"Error activating User with auth0_id {auth0_id}: {str(e)}")
             raise
 
@@ -77,11 +73,9 @@ class UserRepository(BaseRepository[User]):
                 return None
 
             user.auth0_metadata = metadata
-            await self.db.commit()
-            await self.db.refresh(user)
+            await self.db.flush()
             return user
         except SQLAlchemyError as e:
-            await self.db.rollback()
             logger.error(
                 f"Error updating auth0_metadata for User with auth0_id {auth0_id}: {str(e)}"
             )
@@ -94,11 +88,9 @@ class UserRepository(BaseRepository[User]):
                 return None
 
             user.email_verified = True
-            await self.db.commit()
-            await self.db.refresh(user)
+            await self.db.flush()
             return user
         except SQLAlchemyError as e:
-            await self.db.rollback()
             logger.error(f"Error verifying email for User with auth0_id {auth0_id}: {str(e)}")
             raise
 
@@ -109,11 +101,9 @@ class UserRepository(BaseRepository[User]):
                 return None
 
             user.last_login = last_login
-            await self.db.commit()
-            await self.db.refresh(user)
+            await self.db.flush()
             return user
         except SQLAlchemyError as e:
-            await self.db.rollback()
             logger.error(f"Error setting last_login for User with auth0_id {auth0_id}: {str(e)}")
             raise
 
@@ -124,11 +114,9 @@ class UserRepository(BaseRepository[User]):
                 return None
 
             user.role = new_role
-            await self.db.commit()
-            await self.db.refresh(user)
+            await self.db.flush()
             return user
         except SQLAlchemyError as e:
-            await self.db.rollback()
             logger.error(f"Error updating role for User with auth0_id {auth0_id}: {str(e)}")
             raise
 

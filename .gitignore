@@ -14,3 +14,17 @@ agent.md
 
 # Environment variables
 .env
+
+# SQLite local databases
+*.db
+*.db-journal
+*.db-wal
+
+# Test and coverage caches
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+
+# Local logging outputs
+logs/

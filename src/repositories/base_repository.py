@@ -71,11 +71,9 @@ class BaseRepository(Generic[T]):
         try:
             obj = self.model(**obj_data)
             self.db.add(obj)
-            await self.db.commit()
-            await self.db.refresh(obj)
+            await self.db.flush()
             return obj
         except SQLAlchemyError as e:
-            await self.db.rollback()
             logger.error(f"Error creating {self.model.__name__}: {str(e)}")
             raise DatabaseError(
                 message=f"Failed to create {self.model.__name__}",
@@ -91,11 +89,9 @@ class BaseRepository(Generic[T]):
             for key, value in obj_data.items():
                 setattr(obj, key, value)
 
-            await self.db.commit()
-            await self.db.refresh(obj)
+            await self.db.flush()
             return obj
         except SQLAlchemyError as e:
-            await self.db.rollback()
             logger.error(f"Error updating {self.model.__name__} with id {id}: {str(e)}")
             raise DatabaseError(
                 message=f"Failed to update {self.model.__name__}",
@@ -109,10 +105,9 @@ class BaseRepository(Generic[T]):
                 return False
 
             await self.db.delete(obj)
-            await self.db.commit()
+            await self.db.flush()
             return True
         except SQLAlchemyError as e:
-            await self.db.rollback()
             logger.error(f"Error deleting {self.model.__name__} with id {id}: {str(e)}")
             raise DatabaseError(
                 message=f"Failed to delete {self.model.__name__}",

@@ -50,9 +50,16 @@ class BaseService(Generic[T]):
             HTTPException: For database errors
         """
         try:
-            return await self.repository.create(data)
+            item = await self.repository.create(data)
+            await self.db.commit()
+            await self.db.refresh(item)
+            return item
         except DatabaseError as e:
+            await self.db.rollback()
             raise HTTPException(status_code=500, detail=str(e)) from e
+        except Exception as e:
+            await self.db.rollback()
+            raise e
 
     async def update(self, id: int, data: dict) -> T:
         """
@@ -66,9 +73,15 @@ class BaseService(Generic[T]):
             item = await self.repository.update(id, data)
             if not item:
                 raise NotFoundError(f"Item with id {id} not found")
+            await self.db.commit()
+            await self.db.refresh(item)
             return item
         except DatabaseError as e:
+            await self.db.rollback()
             raise HTTPException(status_code=500, detail=str(e)) from e
+        except Exception as e:
+            await self.db.rollback()
+            raise e
 
     async def delete(self, id: int) -> bool:
         """
@@ -81,6 +94,11 @@ class BaseService(Generic[T]):
         try:
             if not await self.repository.delete(id):
                 raise NotFoundError(f"Item with id {id} not found")
+            await self.db.commit()
             return True
         except DatabaseError as e:
+            await self.db.rollback()
             raise HTTPException(status_code=500, detail=str(e)) from e
+        except Exception as e:
+            await self.db.rollback()
+            raise e

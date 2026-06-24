@@ -72,19 +72,8 @@ def setup_logging(
     # Remove default loguru handler
     logger.remove()
 
-    # Configure log format
     if json_format:
-        format_dict = {
-            "time": "{time:YYYY-MM-DD HH:mm:ss.SSS}",
-            "level": "{level}",
-            "message": "{message}",
-            "module": "{module}",
-            "function": "{function}",
-            "line": "{line}",
-            "process": "{process}",
-            "thread": "{thread}",
-        }
-        log_format = str(format_dict)
+        log_format = "{message}"
     else:
         log_format = (
             "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "

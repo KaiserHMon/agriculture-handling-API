@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, Text
+from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base_model import Base
@@ -27,8 +27,3 @@ class Event(Base):
     plot: Mapped["Plot"] = relationship("Plot", back_populates="events")
     campaign: Mapped["Campaign"] = relationship("Campaign", back_populates="events")
     created_by: Mapped["User"] = relationship("User", back_populates="events")
-
-    # Constraints
-    __table_args__ = (
-        CheckConstraint("event_date >= CURRENT_TIMESTAMP", name="check_event_date_future"),
-    )
