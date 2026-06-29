@@ -37,8 +37,10 @@ async def create_plot(
         )
 
     service = PlotService(db)
+    data = payload.model_dump()
+    data.pop("description", None)
     try:
-        plot = await service.create(payload.model_dump())
+        plot = await service.create(data)
         return PlotResponse.model_validate(plot, from_attributes=True)
     except DatabaseError as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -118,7 +120,9 @@ async def update_plot(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Advisors cannot modify plots",
             )
-        updated_plot = await service.update(plot_id, payload.dict(exclude_unset=True))
+        data = payload.dict(exclude_unset=True)
+        data.pop("description", None)
+        updated_plot = await service.update(plot_id, data)
         return PlotResponse.from_orm(updated_plot)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=e.message) from e
@@ -292,5 +296,51 @@ async def get_plots_by_location(
         else:
             filtered_plots = plots
         return [PlotResponse.from_orm(p) for p in filtered_plots]
+    except DatabaseError as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/{plot_id}/report")
+async def get_plot_report(
+    plot_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get agricultural plot report including weather forecast."""
+    service = PlotService(db)
+    try:
+        plot = await service.get(plot_id)
+        if not plot:
+            raise HTTPException(status_code=404, detail=f"Plot {plot_id} not found")
+
+        # Check permissions
+        if current_user.role == UserRole.FARMER and plot.user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not enough permissions to access this plot report",
+            )
+        elif current_user.role == UserRole.ADVISOR:
+            # Check advisor access
+            has_access = await service.validate_advisor_plot_access(plot.id, current_user.id)
+            if not has_access:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Advisors can only access plot reports where they have made recommendations",
+                )
+
+        # Import weather service
+        from utils.weather import WeatherService
+
+        weather_service = WeatherService()
+        weather = await weather_service.get_forecast(plot.location or "")
+
+        return {
+            "plot_id": plot.id,
+            "name": plot.name,
+            "location": plot.location,
+            "weather_forecast": weather,
+        }
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=e.message) from e
     except DatabaseError as e:
         raise HTTPException(status_code=500, detail=str(e)) from e

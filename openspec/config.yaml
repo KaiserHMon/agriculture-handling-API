@@ -1,0 +1,57 @@
+schema: spec-driven
+
+context: |
+  Tech stack: FastAPI, Python >=3.11, SQLAlchemy 2.0 (aiomysql/aiosqlite), Alembic, Pydantic v2, Loguru.
+  Architecture: Layered Routers -> Services (transaction control) -> Repositories (queries/flush, no commit).
+  Testing: pytest, pytest-asyncio, pytest-cov.
+  Style: PEP 8, Ruff (linting), Black (formatting).
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    - Follow existing code patterns
+    - Respect layered architecture boundaries
+  verify:
+    - Run all pytest test suites
+  archive:
+    - Warn before merging destructive deltas
+
+testing:
+  strict_tdd: true
+  detected_date: "2026-06-28"
+  runner:
+    command: "uv run pytest"
+    framework: "pytest"
+  layers:
+    unit:
+      available: true
+      tool: "pytest"
+    integration:
+      available: true
+      tool: "pytest + httpx (AsyncClient)"
+    e2e:
+      available: false
+      tool: null
+  coverage:
+    available: true
+    command: "uv run pytest --cov=src --cov-report=term-missing"
+  quality:
+    linter:
+      available: true
+      command: "uv run ruff check src"
+    type_checker:
+      available: true
+      command: "uv run pyright"
+    formatter:
+      available: true
+      command: "uv run black --check src"

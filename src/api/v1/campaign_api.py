@@ -51,7 +51,9 @@ async def create_campaign(
 
     service = CampaignService(db)
     try:
-        return await service.create(payload.dict())
+        campaign = await service.create(payload.model_dump())
+        await db.refresh(campaign, ["plots"])
+        return campaign
     except DatabaseError as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
@@ -86,7 +88,7 @@ async def get_campaign(
     """Get a campaign by id. Farmers can only view their own campaigns."""
     service = CampaignService(db)
     try:
-        campaign = await service.get(campaign_id)
+        campaign = await service.get_campaign_with_plots(campaign_id)
         if current_user.role == UserRole.FARMER:
             # Farmers can only see their own campaigns
             if campaign.user_id != current_user.id:
@@ -208,9 +210,10 @@ async def update_campaign_dates(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Advisors cannot modify campaigns",
             )
-        return await service.update_campaign_dates(
+        campaign = await service.update_campaign_dates(
             campaign_id, payload.start_date, payload.end_date
         )
+        return await service.get_campaign_with_plots(campaign.id)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=e.message) from e
     except DatabaseError as e:
@@ -252,7 +255,8 @@ async def close_campaign(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Not enough permissions to close this campaign",
             )
-        return await service.close_campaign(campaign_id)
+        campaign = await service.close_campaign(campaign_id)
+        return await service.get_campaign_with_plots(campaign.id)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=e.message) from e
     except DatabaseError as e:
