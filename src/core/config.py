@@ -79,12 +79,14 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: SecretStr | None = None
 
     @property
-    def redis_url(self) -> str | None:
+    def redis_url(self) -> str:
         """Construct Redis URL from components."""
-        if not all([self.REDIS_HOST, self.REDIS_PORT, self.REDIS_PASSWORD]):
-            return None
-        redis_password = self.REDIS_PASSWORD.get_secret_value() if self.REDIS_PASSWORD else ""
-        return f"redis://:{redis_password}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+        host = self.REDIS_HOST or "localhost"
+        port = self.REDIS_PORT or 6379
+        if self.REDIS_PASSWORD:
+            redis_password = self.REDIS_PASSWORD.get_secret_value()
+            return f"redis://:{redis_password}@{host}:{port}/{self.REDIS_DB}"
+        return f"redis://{host}:{port}/{self.REDIS_DB}"
 
     # External Services
     WEATHER_API_KEY: SecretStr | None = None

@@ -80,14 +80,12 @@ async def create_event(
         # Create event
         event = await service.create(event_dict)
 
-        # Trigger Google Calendar Sync
+        # Trigger Google Calendar Sync asynchronously via Celery
         try:
-            from utils.calendar import GoogleCalendarClient
+            from src.tasks.calendar_tasks import sync_event_task
 
-            calendar_client = GoogleCalendarClient()
-            await calendar_client.sync_event(
-                event_id=event.id, title=event.title, start_time=event.event_date
-            )
+            start_time_str = event.event_date.isoformat() if event.event_date else ""
+            sync_event_task.delay(event.id, event.title, start_time_str)  # type: ignore[reportFunctionMemberAccess]
         except Exception:
             pass
 

@@ -61,7 +61,7 @@ uv run dev
 | **`exceptions/`**                           | Custom exception definitions.                                          |
 | **`alembic/`**                              | Database migrations managed by Alembic.                                |
 | **`tests/`**                                | Unit and integration tests.                                            |
-| **`docs/`**                                 | Technical and architecture documentation.                              |
+| **[docs/](file:///C:/Proyectos/Api-AgricultureHandling/docs/README.md)** | Technical and architecture documentation (including ADRs). |
 
 
 ## Testing & Best Practices
