@@ -54,17 +54,17 @@ graph TD
 
 ---
 
-## ⚡ Phase 3: WebSocket Real-Time Notifications
+## ⚡ Phase 3: SSE Real-Time Notifications
 
-**Goal:** Complete the WebSockets infrastructure to send real-time alerts to farmers when advisors make recommendations.
+**Goal:** Complete the Server-Sent Events (SSE) infrastructure to send real-time alerts to farmers when advisors make recommendations.
 
-- [ ] **3.1 Create WebSocket Manager**
-  - Create a WebSocket connection manager (`src/core/websocket.py`) to keep track of active connections associated with specific `user_id`s.
-- [ ] **3.2 Implement WebSocket Route**
-  - Expose `/ws/notifications` route inside `notification_api.py`.
-  - Handle connection, authenticated handshakes (extracting token from query string/headers), disconnection, and heartbeats.
+- [ ] **3.1 Create SSE Manager**
+  - Create an SSE connection manager (`src/core/sse.py`) to keep track of active connections associated with specific `user_id`s.
+- [ ] **3.2 Implement SSE Route**
+  - Expose `/sse/notifications` route inside `notification_api.py`.
+  - Handle connection and authenticated handshakes (via HTTP headers).
 - [ ] **3.3 Hook into Recommendation Events**
-  - Trigger WebSocket broadcasts when an advisor posts a recommendation (`recommendation_api.py`) or updates an event (`event_api.py`).
+  - Trigger SSE push notifications when an advisor posts a recommendation (`recommendation_api.py`) or updates an event (`event_api.py`).
 
 ---
 

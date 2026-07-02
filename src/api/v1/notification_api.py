@@ -25,7 +25,6 @@ async def create_notification(
 ) -> NotificationResponse:
     """
     Create a new notification (message).
-    - FARMER can send messages to ADVISOR
     - ADVISOR can send messages to FARMER
     - ADMIN can send messages to anyone
     """
@@ -43,11 +42,10 @@ async def create_notification(
 
         # Check permissions based on roles
         if current_user.role == UserRole.FARMER:
-            if recipient.role != UserRole.ADVISOR:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Farmers can only send messages to advisors",
-                )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Farmers cannot send direct messages",
+            )
         elif current_user.role == UserRole.ADVISOR:
             if recipient.role != UserRole.FARMER:
                 raise HTTPException(
@@ -168,57 +166,5 @@ async def get_notification_count(
         total = len(await service.get_user_notifications(current_user.id))
         unread = len(await service.get_unread_notifications(current_user.id))
         return NotificationCount(total=total, unread=unread)
-    except DatabaseError as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-
-@router.get("/conversation/{other_user_id}", response_model=list[NotificationResponse])
-async def get_conversation(
-    other_user_id: int,
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-) -> list[NotificationResponse]:
-    """
-    Get all notifications between current user and another user, ordered by date.
-    This represents a chat conversation between two users.
-    """
-    service = NotificationService(db)
-    user_service = UserService(db)
-
-    try:
-        # Verify other user exists
-        other_user = await user_service.get(other_user_id)
-        if not other_user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User {other_user_id} not found",
-            )
-
-        # Check permission to chat
-        if current_user.role == UserRole.FARMER and other_user.role != UserRole.ADVISOR:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Farmers can only chat with advisors",
-            )
-        elif current_user.role == UserRole.ADVISOR and other_user.role != UserRole.FARMER:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Advisors can only chat with farmers",
-            )
-
-        # Get messages in both directions
-        received = await service.get_user_notifications(current_user.id)
-        sent = await service.get_user_notifications(other_user_id)
-
-        # Filter and sort messages
-        conversation = [
-            n
-            for n in received + sent
-            if (n.user_id == current_user.id and n.sender_id == other_user_id)
-            or (n.user_id == other_user_id and n.sender_id == current_user.id)
-        ]
-        conversation.sort(key=lambda x: x.created_at)
-
-        return [NotificationResponse.model_validate(n, from_attributes=True) for n in conversation]
     except DatabaseError as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
