@@ -55,10 +55,17 @@ weather_service_mock = MockWeatherService()
 weather_module = types.ModuleType("utils.weather")
 weather_module.WeatherService = lambda: weather_service_mock
 sys.modules["utils.weather"] = weather_module
+sys.modules["src.utils.weather"] = weather_module
 
 calendar_module = types.ModuleType("utils.calendar")
 calendar_module.GoogleCalendarClient = lambda: google_calendar_mock
 sys.modules["utils.calendar"] = calendar_module
+sys.modules["src.utils.calendar"] = calendar_module
+
+# Configure Celery for synchronous execution in tests
+from src.core.celery_app import celery_app  # noqa: E402
+
+celery_app.conf.update(task_always_eager=True)
 
 
 @pytest.fixture(scope="session")
@@ -94,8 +101,17 @@ async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
         autoflush=False,
     )
 
+    # Patch database session factory for background tasks
+    import src.db.database
+
+    original_session_maker = src.db.database.async_session_maker
+    src.db.database.async_session_maker = async_session_maker
+
     async with async_session_maker() as session:
         yield session
+
+    # Restore original session factory
+    src.db.database.async_session_maker = original_session_maker
 
     await transaction.rollback()
     await connection.close()
