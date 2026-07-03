@@ -19,7 +19,9 @@ dependencies = [
     "python-jose[cryptography]>=3.3.0",
     "passlib[bcrypt]>=1.7.4",
     "python-multipart>=0.0.6",
-    "email-validator>=2.0.0"
+    "email-validator>=2.0.0",
+    "celery>=5.6.3",
+    "redis>=8.0.1",
 ]
 
 [build-system]
@@ -61,6 +63,7 @@ src_paths = ["src", "tests"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+pythonpath = "."
 addopts = "--cov=src --cov-report=term-missing"
 
 [tool.pyright]
