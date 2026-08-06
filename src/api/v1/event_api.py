@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...core.auth import get_current_active_user
+from ...core.sse import sse_manager
 from ...db.database import get_db
 from ...exceptions.api_exceptions import DatabaseError, NotFoundError
 from ...models.user_model import User, UserRole
@@ -154,7 +155,21 @@ async def update_event(
         await service.validate_event_ownership(event_id, current_user.id, allow_admin=True)
 
         updated_event = await service.update(event_id, payload.model_dump(exclude_unset=True))
-        return EventResponse.model_validate(updated_event, from_attributes=True)
+        response = EventResponse.model_validate(updated_event, from_attributes=True)
+
+        # Publish SSE event if updated by someone other than the plot owner
+        plot_service = PlotService(db)
+        plot = await plot_service.get(updated_event.plot_id)
+        if plot and current_user.id != plot.user_id:
+            await sse_manager.publish(
+                user_id=plot.user_id,
+                message={
+                    "type": "event_updated",
+                    "event_id": response.id,
+                    "message": f"Event {response.title} updated",
+                },
+            )
+        return response
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=e.message) from e
     except DatabaseError as e:

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...core.auth import get_current_active_user
+from ...core.sse import sse_manager
 from ...db.database import get_db
 from ...exceptions.api_exceptions import DatabaseError, NotFoundError
 from ...models.user_model import User, UserRole
@@ -50,7 +51,18 @@ async def create_recommendation(
 
         # Create recommendation
         recommendation = await service.create(payload.model_dump())
-        return RecommendationResponse.model_validate(recommendation, from_attributes=True)
+        response = RecommendationResponse.model_validate(recommendation, from_attributes=True)
+
+        # Publish SSE event to the farmer (plot owner)
+        await sse_manager.publish(
+            user_id=plot.user_id,
+            message={
+                "type": "new_recommendation",
+                "recommendation_id": response.id,
+                "message": f"New recommendation for plot {plot.name}",
+            },
+        )
+        return response
     except DatabaseError as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 

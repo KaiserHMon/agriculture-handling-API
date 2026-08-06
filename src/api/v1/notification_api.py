@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...core.auth import get_current_active_user
+from ...core.sse import sse_manager
 from ...db.database import get_db
 from ...exceptions.api_exceptions import DatabaseError, NotFoundError
 from ...models.user_model import User, UserRole
@@ -168,3 +170,18 @@ async def get_notification_count(
         return NotificationCount(total=total, unread=unread)
     except DatabaseError as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/sse", response_class=StreamingResponse)
+async def sse_notifications(
+    request: Request,
+    current_user: User = Depends(get_current_active_user),
+):
+    """
+    Establish an SSE connection to receive real-time notifications.
+    This will stream events to the client as long as the connection is open.
+    """
+    return StreamingResponse(
+        sse_manager.subscribe(current_user.id),
+        media_type="text/event-stream",
+    )
